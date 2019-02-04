@@ -1,0 +1,6 @@
+;Basic information
+core = "7.x"
+description = "Módulo que realiza um crud de usuário."
+name = "CRUD user"
+package = "CRUD"
+version = "7.x-1.0"

@@ -1,0 +1,72 @@
+<?php
+
+define('BASE_DIR', __DIR__);
+
+require_once 'api/connection_api.php';
+require_once 'includes/crud_user.inc';
+
+function crud_user_menu() {
+  $items = array();
+
+  $items['api/cadastrar-usuario'] = array(
+    'title' => 'Registro de usuário',
+    'description' => 'Formulário de registro do usuário',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('register_user_form'),
+    'access callback' => TRUE,
+    'file' => 'includes/crud_user.inc',
+  );
+
+  $items['api/tabela-usuario'] = array(
+    'title' => 'Tabela de usuários',
+    'description' => 'Tabela com os usuários cadastrados no banco',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('table_user_form'),
+    'access callback' => TRUE,
+    'file' => 'includes/crud_user.inc',
+  );
+
+  return $items;
+}
+
+function register_user_form_validate($form, &$form_state) {
+  $password = $form_state['values']['user_password'];
+  if (!valid_email_address($form_state['values']['user_email'])){
+    form_set_error('user_email', t('E-mail inválido!'));
+  }
+  if (strlen($password) < 6 || strlen($password) > 64) {
+    form_set_error('user_password', t('Digite uma senha com no mínimo 6 caracteres e no máximo 64 caracteres.'));
+  }
+}
+
+function register_user_form_submit($form, &$form_state) {
+  dpm($form_state);
+  $request = json_decode(register_user($form_state)->data, TRUE);
+  //Checking if the API response has the 'code' equal to 404
+  if ($request['statusCode'] == 409) {
+    drupal_set_message(t($request['message']), 'error');
+    $form_state['redirect'] = FALSE;
+    return;
+  } else {
+    drupal_set_message($request['message']);
+    $form_state['input'] = array();
+  } 
+}
+
+function crud_user_form_search_user_submit($form, &$form_state){
+  drupal_set_message("OIOIOI");
+}
+
+function crud_user_form_delete_user_submit($form, &$form_state) {
+  $table = $form_state['values']['table']; 
+  foreach($table as $id){
+    if ($id){
+      $request = json_decode(delete_user($id)->data, TRUE);
+      if ($request['statusCode'] != 200){
+        drupal_set_message(t($request['message'].' '. $form_state['complete form']['table']['#options'][$id]['name']), 'error');
+        return;
+      }
+    }
+  }
+  drupal_set_message($request['message']);
+}

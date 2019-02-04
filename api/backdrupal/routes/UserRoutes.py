@@ -19,7 +19,6 @@ def users():
     if request.method == "GET":
         if search == None:
             result = facade.getAllUsers()
-            result['data'] = UserSchema(many=True).dump(result['data']).data
             if result['sucess']:
                 return jsonify(result), 200
             return abort(make_response(jsonify(result), 404))

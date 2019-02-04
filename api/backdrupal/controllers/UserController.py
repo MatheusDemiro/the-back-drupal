@@ -30,7 +30,7 @@ class UserController:
         users = self._userModel.query.all()
         if users:
             return {'sucess': True, 'data': users, 'statusCode': 200}
-        return {'sucess': False, 'message': "Erro ao retornar usuários!", 'statusCode': 400}
+        return {'sucess': False, 'message': "Não há usuário(s) cadastrado(s) na base de dados.", 'statusCode': 404}
 
     def validateUser(self, user):
         if user.query.filter_by(email=user.email).first():
