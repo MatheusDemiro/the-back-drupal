@@ -20,12 +20,13 @@ def users():
         if search == None:
             result = facade.getAllUsers()
             if result['sucess']:
+                result['data'] = UserSchema(many=True).dump(result['data']).data
                 return jsonify(result), 200
             return abort(make_response(jsonify(result), 404))
         else:
             result = facade.searchUser(search)
-            result['data'] = UserSchema(many=True).dump(result['data']).data
             if result['sucess']:
+                result['data'] = UserSchema(many=True).dump(result['data']).data
                 return jsonify(result), 200
             return abort(make_response(jsonify(result), 404))
 
