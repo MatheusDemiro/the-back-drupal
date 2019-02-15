@@ -2,7 +2,7 @@
 
 require_once BASE_DIR . '\api\connection_api.php';
 
-function register_user_form($form, &$form_state){  
+function register_user_form($form, &$form_state) {  
     $form['user_name'] = array(
       '#type' => 'textfield',
       '#title' => 'Digite seu nome',
@@ -43,28 +43,46 @@ function register_user_form($form, &$form_state){
     return $form;
   }
 
-function table_user_form($form, &$form_state){
-  $sample_data = json_decode(get_all_users()->data, TRUE);
-
-  $form['user_search'] = array(
+function user_search_form($form, &$form_state) {
+  $form['search_username'] = array(
     '#type' => 'textfield',
     '#title' => 'Digite sua busca',
-    '#size' => 30,
+    '#size' => 50,
     '#maxlength' => 50,
-  );
-  
-  $form['search_user_submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Pesquisar'),
-    '#name' => 'user_search',
-    '#submit' => array('crud_user_form_search_user_submit'),
-    '#attributes' => array("onclick" => "javascript: this.value='Pesquisando...'; this.disabled = true; this.form.submit();"),
+    '#required' => FALSE,
   );
 
+  $form['table'] = createTableSelect(json_decode(get_all_users()->data, True));
+
+  $form['user_search_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Enviar'),
+    '#attributes' => array("onclick" => "javascript: this.value='Enviando...'; this.disabled = true; this.form.submit();"),
+  );
+
+  return $form;
+}
+
+function table_user_form($form, &$form_state) {
+  $sample_data = json_decode(get_all_users()->data, TRUE);
+
+  $form['table'] = createTableSelect($sample_data);
+
+  $form['delete_user_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Excluir usuário'),
+    '#name' => 'delete_user',
+    '#attributes' => array("onclick" => "javascript: this.value='Enviando...'; this.disabled = true; this.form.submit();"),
+  );
+
+  return $form;
+}
+
+function createTableSelect($sample_data) {
   $sample_header = array(
-      'name' => t('Name'),
-      'email' => t('E-mail'),
-      'type' => t('Type'),
+    'name' => t('Name'),
+    'email' => t('E-mail'),
+    'type' => t('Type'),
   );
 
   $options = array();
@@ -78,19 +96,12 @@ function table_user_form($form, &$form_state){
     }
   }
 
-  $form['table'] = array(
-      '#type' => 'tableselect',
-      '#header' => $sample_header,
-      '#options' => $options,
-      '#empty' => t($sample_data['message']),
+  $form_table = array(
+    '#type' => 'tableselect',
+    '#header' => $sample_header,
+    '#options' => $options,
+    '#empty' => t($sample_data['sucess'] ? true: "Nenhuma conexão foi estabelecida. Tente novamente mais tarde ou contate o administrador."),
   );
 
-  $form['delete_user_submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Excluir usuário'),
-      '#name' => 'delete_user',
-      '#submit' => array('crud_user_form_delete_user_submit'),
-  );
-
-  return $form;
+  return $form_table;
 }

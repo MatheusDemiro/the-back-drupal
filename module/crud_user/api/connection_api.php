@@ -1,6 +1,6 @@
 <?php
 
-function register_user($form_state){
+function register_user($form_state) {
     $name = $form_state['values']['user_name'];
     $email= $form_state['values']['user_email'];
     $type = $form_state['complete form']['user_type']['#options'][$form_state['values']['user_type']];
@@ -23,12 +23,12 @@ function register_user($form_state){
         'cache-control' => "no-cache")
     );
     $request = drupal_http_request($url, $options);
-    if (get_result($request)){
+    if (get_result($request)) {
         return $request;
     }
 }
   
-function delete_user($id){
+function delete_user($id) {
     $url = 'http://localhost:5000/api/users/'.$id; //URL API
 
     $options = array(
@@ -39,14 +39,14 @@ function delete_user($id){
         'cache-control' => "no-cache")
     );
     $request = drupal_http_request($url, $options);
-    if (get_result($request)){
+    if (get_result($request)) {
         return $request;
     }
 }
 
-function user_search($name){
-    $url = 'http://localhost:5000/api/users/q='.$name; //URL API
-
+function user_search($name) {
+    $url = 'http://localhost:5000/api/users?q='.$name; //URL API
+    
     $options = array(
         'method' => "GET",
         'data' => "",
@@ -55,12 +55,12 @@ function user_search($name){
         'cache-control' => "no-cache")
     );
     $request = drupal_http_request($url, $options);
-    if (get_result($request)){
+    if (get_result($request)) {
         return $request;
     }
 }
 
-function get_all_users(){
+function get_all_users() {
     $url = 'http://localhost:5000/api/users'; //URL API
     $options = array(
         'method' => "GET",
@@ -75,9 +75,9 @@ function get_all_users(){
     }
 }
 
-function get_result($request){
+function get_result($request) {
     //Checking if the API response has the 'data' parameter
-    if (!isset($request->data)){
+    if (!isset($request->data)) {
         drupal_set_message(t("Nenhuma conexão foi estabelecida. Tente novamente mais tarde ou contate o administrador."), 'error');
         return FALSE;
     } else {

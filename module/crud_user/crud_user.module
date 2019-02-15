@@ -26,12 +26,20 @@ function crud_user_menu() {
     'file' => 'includes/crud_user.inc',
   );
 
+  $items['api/pesquisar-usuario'] = array(
+    'title' => 'Pesquisar usuário',
+    'description' => 'Formulário para pesquisa de usuários.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_search_form'),
+    'access callback' => TRUE,
+    'file' => 'includes/crud_user.inc',
+  );
   return $items;
 }
 
 function register_user_form_validate($form, &$form_state) {
   $password = $form_state['values']['user_password'];
-  if (!valid_email_address($form_state['values']['user_email'])){
+  if (!valid_email_address($form_state['values']['user_email'])) {
     form_set_error('user_email', t('E-mail inválido!'));
   }
   if (strlen($password) < 6 || strlen($password) > 64) {
@@ -40,7 +48,6 @@ function register_user_form_validate($form, &$form_state) {
 }
 
 function register_user_form_submit($form, &$form_state) {
-  dpm($form_state);
   $request = json_decode(register_user($form_state)->data, TRUE);
   //Checking if the API response has the 'code' equal to 404
   if ($request['statusCode'] == 409) {
@@ -53,16 +60,25 @@ function register_user_form_submit($form, &$form_state) {
   } 
 }
 
-function crud_user_form_search_user_submit($form, &$form_state){
-  drupal_set_message("OIOIOI");
+function user_search_form_submit($form, &$form_state){
+  $name = $form_state['values']['search_username'];
+  if (!empty(trim($name))) {
+    $result = json_decode(user_search($name)->data, TRUE);
+    if ($result['data']){
+      foreach ($result['data'] as $data){
+        drupal_set_message($data['name']);
+      }
+    }
+  }
 }
 
-function crud_user_form_delete_user_submit($form, &$form_state) {
+function table_user_form_submit($form, &$form_state) {
+  dpm($form_state);
   $table = $form_state['values']['table']; 
   foreach($table as $id){
     if ($id){
       $request = json_decode(delete_user($id)->data, TRUE);
-      if ($request['statusCode'] != 200){
+      if ($request['statusCode'] != 200) {
         drupal_set_message(t($request['message'].' '. $form_state['complete form']['table']['#options'][$id]['name']), 'error');
         return;
       }
